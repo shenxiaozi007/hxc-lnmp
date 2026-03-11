@@ -10,6 +10,7 @@
 #
 # 执行后会：
 #   - 安装并启动 Docker（CentOS/Rocky）
+#   - 自动配置常用国内镜像源（Daocloud / 网易 / 腾讯云），解决拉取镜像缓慢或失败问题
 #   - 在 /opt/lnmp 下创建目录结构
 #   - 生成 docker-compose.yml、Nginx 配置、PHP 示例页面、Go 示例服务与 Dockerfile
 #   - 运行：docker compose up -d
@@ -70,6 +71,24 @@ detect_pkg_manager() {
   fi
 }
 
+configure_docker_mirror() {
+  log "配置 Docker 国内镜像源（Daocloud / 网易 / 腾讯云）..."
+
+  mkdir -p /etc/docker
+
+  cat > /etc/docker/daemon.json << 'EOF'
+{
+  "registry-mirrors": [
+    "https://docker.m.daocloud.io",
+    "https://hub-mirror.c.163.com",
+    "https://mirror.ccs.tencentyun.com"
+  ]
+}
+EOF
+
+  log "已写入 /etc/docker/daemon.json，如有自有镜像加速地址，可手动修改该文件。"
+}
+
 install_docker() {
   if command -v docker >/dev/null 2>&1; then
     log "检测到 Docker 已安装，跳过安装步骤。"
@@ -88,8 +107,14 @@ install_docker() {
 
   ${pkg_mgr} install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
 
+  # 写入国内镜像源配置
+  configure_docker_mirror
+
   systemctl enable docker
   systemctl start docker
+
+  # 应用新的 daemon.json 配置
+  systemctl restart docker
 
   log "Docker 安装并启动完成。"
 }
