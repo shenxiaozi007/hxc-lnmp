@@ -91,7 +91,11 @@ EOF
 
 install_docker() {
   if command -v docker >/dev/null 2>&1; then
-    log "检测到 Docker 已安装，跳过安装步骤。"
+    log "检测到 Docker 已安装，将更新国内镜像源配置。"
+    configure_docker_mirror
+    if systemctl is-active docker >/dev/null 2>&1; then
+      systemctl restart docker || true
+    fi
     return
   fi
 
