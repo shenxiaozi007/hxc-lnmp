@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/gorilla/mux"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/gorilla/mux"
 )
 
 var db *sql.DB
@@ -67,7 +67,7 @@ func healthHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "数据库连接异常", http.StatusServiceUnavailable)
 		return
 	}
-	
+
 	w.WriteHeader(http.StatusOK)
 	fmt.Fprintf(w, "服务状态: 正常")
 }
@@ -80,6 +80,6 @@ func dataHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "数据库查询失败", http.StatusInternalServerError)
 		return
 	}
-	
+
 	fmt.Fprintf(w, "数据库表数量: %d", count)
 }
