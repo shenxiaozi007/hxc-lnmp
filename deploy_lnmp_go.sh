@@ -335,22 +335,15 @@ write_go_dockerfile() {
   log "生成 Go 应用 Dockerfile ..."
 
   cat > "${file}" <<'EOF'
-FROM golang:1.22-alpine AS builder
+FROM golang:1.22-alpine
 
 WORKDIR /app
 
-COPY go.mod go.sum . 2>/dev/null || true
-RUN if [ -f go.mod ]; then go mod download; fi
-
+# 拷贝当前目录下的 Go 源码（示例只有 main.go）
 COPY . .
 
+# 编译为二进制
 RUN go build -o server main.go
-
-FROM alpine:3.19
-
-WORKDIR /app
-
-COPY --from=builder /app/server /app/server
 
 ENV GO_APP_PORT=8080
 
