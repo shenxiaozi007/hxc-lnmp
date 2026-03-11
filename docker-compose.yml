@@ -49,7 +49,7 @@ services:
       DB_USER: app_user
       DB_PASSWORD: userpassword
     volumes:
-      - ./app:/app
+      # 仅挂载日志目录，避免覆盖镜像内 /app（否则编译生成的 main 会被宿主机目录遮蔽）
       - ./logs/app:/app/logs
     networks:
       - lnmp-network
